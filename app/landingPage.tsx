@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
+  Image,
   StyleSheet,
   Text,
   TextInput,
@@ -9,27 +10,27 @@ import {
 } from "react-native";
 
 export default function LandingScreen() {
-  const [name, setName] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [mobile, setMobile] = useState<string>("");
   const router = useRouter();
 
   const handleContinue = () => {
-    console.log("User Info:", { name, mobile });
-    router.replace("/Otp");
+    console.log("Mobile Number:", mobile);
+    router.replace("/Otp"); // go to OTP page
+  };
+
+  const handleRegister = () => {
+    router.push("/Register"); // go to Register page
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}> Welcome!</Text>
-      <Text style={styles.subtitle}>Let’s get to know you</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your name"
-        value={name}
-        onChangeText={setName}
-        placeholderTextColor="#9c8b7a"
+      <Image
+        source={require("../assets/images/logo.jpg")}
+        style={styles.logo}
+        resizeMode="contain"
       />
+      <Text style={styles.title}>Welcome!</Text>
+      <Text style={styles.subtitle}>Enter your mobile number to continue</Text>
 
       <TextInput
         style={styles.input}
@@ -43,6 +44,10 @@ export default function LandingScreen() {
       <TouchableOpacity style={styles.button} onPress={handleContinue}>
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+        <Text style={styles.registerText}>Register</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -53,17 +58,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#fdfcf9", // light cream base
+    backgroundColor: "#fdfcf9",
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
+    borderRadius: 60,
   },
   title: {
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 8,
-    color: "#4e342e", // deep coffee brown
+    color: "#4e342e",
   },
   subtitle: {
     fontSize: 18,
-    color: "#6d4c41", // medium brown
+    color: "#6d4c41",
     marginBottom: 30,
   },
   input: {
@@ -76,29 +87,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     fontSize: 16,
     color: "#3e2723",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
   },
   button: {
-    backgroundColor: "#795548", // warm coffee brown
+    backgroundColor: "#795548",
     paddingVertical: 14,
-    paddingHorizontal: 30,
     borderRadius: 12,
     alignItems: "center",
     marginTop: 10,
     width: "100%",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 4,
-    elevation: 3,
   },
   buttonText: {
     color: "#fff",
     fontSize: 18,
+    fontWeight: "bold",
+  },
+  registerButton: {
+    marginTop: 15,
+  },
+  registerText: {
+    color: "#795548",
+    fontSize: 16,
     fontWeight: "bold",
   },
 });

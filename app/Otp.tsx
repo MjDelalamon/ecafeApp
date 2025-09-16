@@ -28,7 +28,7 @@ export default function OTPVerification() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🔑 OTP Verification</Text>
+      <Text style={styles.title}>OTP Verification</Text>
       <Text style={styles.subtitle}>
         Enter the 6-digit code we sent to your mobile number
       </Text>
