@@ -15,6 +15,7 @@ export default function Register() {
   const [firstName, setFirstName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [mobile, setMobile] = useState<string>("");
+
   const router = useRouter();
 
   const handleContinue = async () => {
@@ -23,8 +24,11 @@ export default function Register() {
       return;
     }
 
+    // Combine first + last name into one field
+    const fullName = `${firstName} ${lastName}`;
+
     // Save to Firestore
-    const result = await addUserToFirestore(lastName, firstName, email, mobile);
+    const result = await addUserToFirestore(fullName, email, mobile, 0);
 
     if (result.success) {
       console.log("✅ User stored in Firestore:", result.id);
