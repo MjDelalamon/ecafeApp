@@ -4,13 +4,13 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 
 export default function QrTest() {
-  const { mobile, points } = useLocalSearchParams<{
-    mobile: string;
+  // ✅ accept qrValue instead of mobile
+  const { qrValue, points } = useLocalSearchParams<{
+    qrValue: string;
     points: string;
   }>();
 
   const router = useRouter();
-
   const displayPoints = points ? parseFloat(points) : 0;
 
   const handleWallet = () => {
@@ -21,12 +21,12 @@ export default function QrTest() {
     <View style={styles.container}>
       {/* QR Code Section */}
       <View style={styles.qrContainer}>
-        {mobile ? (
-          <QRCode value={mobile} size={180} />
+        {qrValue ? (
+          <QRCode value={qrValue} size={180} />
         ) : (
-          <Text style={styles.error}>No mobile number found</Text>
+          <Text style={styles.error}>No QR code found</Text>
         )}
-        <Text style={styles.barcodeText}>{mobile}</Text>
+        <Text style={styles.barcodeText}>{qrValue}</Text>
         <Text style={styles.scanHint}>
           SCAN YOUR BARCODE BEFORE PAYMENT TO EARN POINTS
         </Text>
@@ -76,7 +76,7 @@ export default function QrTest() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fdfcf9", // cream background
+    backgroundColor: "#fdfcf9",
     padding: 15,
     alignItems: "center",
   },
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   pointsValue: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#795548", // warm brown
+    color: "#795548",
     marginTop: 4,
   },
   grid: {

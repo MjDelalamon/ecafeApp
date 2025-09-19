@@ -18,7 +18,7 @@ export default function Register() {
   const [email, setEmail] = useState<string>("");
   const [mobile, setMobile] = useState<string>("");
 
-  const [loading, setLoading] = useState(false); // 🔹 Loading state
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -28,23 +28,30 @@ export default function Register() {
       return;
     }
 
-    setLoading(true); // show loading modal
+    setLoading(true);
 
     try {
       const fullName = `${firstName} ${lastName}`;
 
-      const result = await addUserToFirestore(fullName, email, mobile, 0);
+      const result = await addUserToFirestore(
+        fullName,
+        email,
+        mobile,
+        0,
+        0,
+        "Active",
+        "Bronze"
+      );
 
       if (result.success) {
         console.log("✅ User stored in Firestore:", result.id);
 
-        // Pass qrCodeImage to QrTest
+        // 🔹 Pass qrValue (Firestore doc ID) to QrTest
         router.replace({
           pathname: "/QrTest",
           params: {
-            mobile,
+            qrValue: result.id, // ✅ use Firestore ID
             points: "0",
-            qrCodeImage: result.qrCodeImage, // 🔹 added
           },
         });
       } else {
@@ -54,7 +61,7 @@ export default function Register() {
       Alert.alert("Error", "Something went wrong.");
       console.error(err);
     } finally {
-      setLoading(false); // hide loading modal
+      setLoading(false);
     }
   };
 

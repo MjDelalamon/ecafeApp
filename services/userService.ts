@@ -1,60 +1,52 @@
-// src/services/userService.ts
-import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
-import QRCode from "qrcode"; // ✅ same as web
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../Firebase/firebaseConfig";
 
-// Add a new user to Firestore
+type FirestoreResult =
+  | {
+      success: true;
+      id: string;
+      customerNumber: string;
+      fullName: string;
+      email: string;
+      mobile: string;
+      wallet: number;
+      points: number;
+      tier: string;
+      status: string;
+      createdAt: Date;
+    }
+  | { success: false; error: unknown };
+
 export const addUserToFirestore = async (
-  name: string,
+  fullName: string,
   email: string,
   mobile: string,
-  wallet: number
-) => {
+  points = 0,
+  wallet = 0,
+  status = "Active",
+  tier = "Bronze"
+): Promise<FirestoreResult> => {
   try {
-    // count existing customers
+    // 🔹 Generate sequential customerNumber
     const snapshot = await getDocs(collection(db, "customers"));
     const count = snapshot.size + 1;
-
-    // auto-generate customer number (ex: 0001, 0002…)
     const customerNumber = count.toString().padStart(4, "0");
 
-    // create customer document
-    const customerRef = await addDoc(collection(db, "customers"), {
+    const newCustomer = {
       customerNumber,
-      name,
+      fullName,
       email,
       mobile,
+      points,
       wallet,
-      tier: "Bronze",
-      status: "Active",
-      points: 0,
-      qrCode: "", // updated below
-      dateJoined: new Date().toISOString(),
-    });
-
-    // use Firestore doc ID as QR value
-    const qrValue = customerRef.id;
-
-    // ✅ generate the same PNG QR code as in web
-    const qrCodeImage = await QRCode.toDataURL(qrValue);
-
-    // update Firestore with qrCodeImage
-    await updateDoc(doc(db, "customers", customerRef.id), {
-      qrCode: qrCodeImage,
-    });
-
-    return {
-      success: true,
-      id: customerRef.id,
-      customerNumber,
-      qrCodeImage, // exact same PNG string as web
+      status,
+      tier,
+      createdAt: new Date(),
     };
+
+    const docRef = await addDoc(collection(db, "customers"), newCustomer);
+
+    return { success: true, id: docRef.id, ...newCustomer };
   } catch (error) {
     console.error("Error adding customer:", error);
     return { success: false, error };
