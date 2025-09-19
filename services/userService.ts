@@ -6,6 +6,7 @@ import {
   getDocs,
   updateDoc,
 } from "firebase/firestore";
+import QRCode from "qrcode"; // ✅ same as web
 import { db } from "../Firebase/firebaseConfig";
 
 // Add a new user to Firestore
@@ -40,16 +41,19 @@ export const addUserToFirestore = async (
     // use Firestore doc ID as QR value
     const qrValue = customerRef.id;
 
-    // update qrCode field in Firestore with just the ID
+    // ✅ generate the same PNG QR code as in web
+    const qrCodeImage = await QRCode.toDataURL(qrValue);
+
+    // update Firestore with qrCodeImage
     await updateDoc(doc(db, "customers", customerRef.id), {
-      qrCode: qrValue,
+      qrCode: qrCodeImage,
     });
 
     return {
       success: true,
       id: customerRef.id,
       customerNumber,
-      qrValue, // use this for QR rendering
+      qrCodeImage, // exact same PNG string as web
     };
   } catch (error) {
     console.error("Error adding customer:", error);

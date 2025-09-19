@@ -1,7 +1,9 @@
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Modal,
   StyleSheet,
   Text,
   TextInput,
@@ -16,6 +18,8 @@ export default function Register() {
   const [email, setEmail] = useState<string>("");
   const [mobile, setMobile] = useState<string>("");
 
+  const [loading, setLoading] = useState(false); // 🔹 Loading state
+
   const router = useRouter();
 
   const handleContinue = async () => {
@@ -24,22 +28,33 @@ export default function Register() {
       return;
     }
 
-    // Combine first + last name into one field
-    const fullName = `${firstName} ${lastName}`;
+    setLoading(true); // show loading modal
 
-    // Save to Firestore
-    const result = await addUserToFirestore(fullName, email, mobile, 0);
+    try {
+      const fullName = `${firstName} ${lastName}`;
 
-    if (result.success) {
-      console.log("✅ User stored in Firestore:", result.id);
+      const result = await addUserToFirestore(fullName, email, mobile, 0);
 
-      // Redirect to QR page with mobile param
-      router.replace({
-        pathname: "/QrTest",
-        params: { mobile, points: "0" }, // start with 0 points
-      });
-    } else {
-      Alert.alert("Error", "Failed to register user.");
+      if (result.success) {
+        console.log("✅ User stored in Firestore:", result.id);
+
+        // Pass qrCodeImage to QrTest
+        router.replace({
+          pathname: "/QrTest",
+          params: {
+            mobile,
+            points: "0",
+            qrCodeImage: result.qrCodeImage, // 🔹 added
+          },
+        });
+      } else {
+        Alert.alert("Error", "Failed to register user.");
+      }
+    } catch (err) {
+      Alert.alert("Error", "Something went wrong.");
+      console.error(err);
+    } finally {
+      setLoading(false); // hide loading modal
     }
   };
 
@@ -88,6 +103,16 @@ export default function Register() {
       <TouchableOpacity style={styles.button} onPress={Back}>
         <Text style={styles.buttonText}>Back </Text>
       </TouchableOpacity>
+
+      {/* 🔹 Loading Modal */}
+      <Modal visible={loading} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <ActivityIndicator size="large" color="#795548" />
+            <Text style={styles.loadingText}>Registering...</Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -129,5 +154,23 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 30,
+    borderRadius: 15,
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#4e342e",
   },
 });
